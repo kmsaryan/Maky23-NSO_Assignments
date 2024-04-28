@@ -5,9 +5,11 @@ you need to create a network and define an ip address range and ports don't forg
     name ; chose region ;select"Create complete network,containing subnet"
     give the necessary ip address and gateway and DHCP allocation pools range and done 
 Create Keypair
+
 you need to create ssh keypair which we use to connect the hosts 
     compute>> keypair
     name, region, keypair type (ssh)
+
 Configuring Servers 
 create 5 hosts with names "Bastion","Haproxy",Dev A,Dev B,Dev C with network 
     select region; serverprofile Generic ;boot source image ubuntu ; don't change any thing ;Network select the one just created. 
@@ -21,9 +23,10 @@ after creating servers you need to create rules open security group tab in a ser
   
 Haproxy public ip address:185.52.156.129
 command we use to connect to haproxy from local host make sure you are in directory where your privatekey is located
- ssh -i ".\privatekey--madhav.txt" ubuntu@185.52.156.129
+	 ssh -i ".\privatekey--madhav.txt" ubuntu@185.52.156.129
 the public ip address we use for connecting into bastion from our local host 
 bastion ubuntu@185.52.156.197
+
 To login into bastion we use the follwing command from the directory where our ssh key is located in our local host (host from which we are using to configure )
 PS F:\MADHAV SAI ARYAN\Downloads> ssh -i ".\privatekey--madhav.txt" ubuntu@185.52.156.197
 
@@ -32,6 +35,7 @@ you need key.pem which we use to connect dev A B C
 
 we use the following to connect with intended hosts
     ssh -i key.pem ubuntu@<private ip address>
+
 Intial Configuration of Bastion
 gain root access using sudo su and install a text editor like vim 
     apt install vim
