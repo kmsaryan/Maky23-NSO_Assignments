@@ -21,14 +21,14 @@ after creating servers you need to create rules open security group tab in a ser
      select a protocol; give range ;select network 
         you need tcp and icmp 
   
-Haproxy public ip address:185.52.156.129
+Haproxy public ip address:xxxx
 command we use to connect to haproxy from local host make sure you are in directory where your privatekey is located
-	 ssh -i ".\privatekey--madhav.txt" ubuntu@185.52.156.129
+	 ssh -i ".\privatekey--xxxx.txt" ubuntu@Xxxxxxxxx
 the public ip address we use for connecting into bastion from our local host 
-bastion ubuntu@185.52.156.197
+bastion ubuntu@xxxxx
 
 To login into bastion we use the follwing command from the directory where our ssh key is located in our local host (host from which we are using to configure )
-PS F:\MADHAV SAI ARYAN\Downloads> ssh -i ".\privatekey--madhav.txt" ubuntu@185.52.156.197
+PS F:\User\> ssh -i ".\privatekey--xxxx.txt" ubuntu@xxx.Xx.xxx.xxx
 
 from bastion we connect to remaining severs Dev A,B,C
 you need key.pem which we use to connect dev A B C
