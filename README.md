@@ -48,4 +48,5 @@ change directory to .ssh
         cd .ssh
 you need to add your public key to allow access to this host you do so with the following
     echo -n "<insert your public key here>" >>  authorized_keys
-repeat the intial configuration for all Dev servers     
+repeat the intial configuration for all Dev servers 
+    
