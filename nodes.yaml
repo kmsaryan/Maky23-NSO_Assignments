@@ -1,0 +1,182 @@
+---
+- hosts: all 
+  gather_facts: yes
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: updating all hosts 
+      apt:
+        update_cache: yes
+
+- hosts: webservers 
+  become: true
+  become_method: sudo
+  gather_facts: true
+  tasks:
+    - name: update all webservers 
+      apt:
+        update_cache: true
+
+    - name: Installing nginx
+      apt:
+        name: nginx
+        state: latest
+        update_cache: true
+
+    - name: pip install
+      apt:
+        name: python3-pip
+        state: latest
+        update_cache: true
+
+    - name: Installing flask app
+      pip:
+        executable: pip3
+        name: flask
+        state: latest
+
+
+    - name: apt update
+      apt:
+        update_cache: true
+
+    - name: Installing flask service deployment
+      pip:
+        executable: pip3
+        name: gunicorn
+        state: latest
+
+    - name: apt update
+      apt:
+        update_cache: true
+
+    - name: copy flask app 
+      copy:
+        src: /$PWD/application2.py
+        dest: /home/ubuntu/application2.py
+        owner: ubuntu
+        mode: '0644'
+
+    - name: deploying Flask application 
+      shell: gunicorn -w 2 -D -b 0.0.0.0:5000 application2:app
+
+    - name: install snmpd 
+      apt:
+        name: snmpd
+        state: latest
+        update_cache: true
+
+    - name: configure snmpd
+      template:
+             src: snmpd.conf
+             dest: /etc/snmp/snmpd.conf
+
+    - name: restarting snmpd
+      service:
+            name: snmpd
+            state: restarted
+
+    - name: apt update
+      apt:
+        update_cache: true
+- hosts: all
+  gather_facts: true
+
+- hosts: HAproxy 
+  become: true
+  tasks:
+    - name: update HAproxy
+      apt:
+        update_cache: yes
+
+    - name: Installing HAPROXY
+      apt:
+        name: haproxy
+        state: present
+        update_cache: true
+
+    - name: Configure haproxy
+      template:
+             src: /$PWD/haproxy.cfg.j2
+             dest: /etc/haproxy/haproxy.cfg
+
+    - name: Restart haproxy
+      service:
+        name: haproxy
+        state: restarted
+
+    - name: apt update
+      apt:
+        update_cache: true
+
+    - name: Installing Nginx
+      apt:
+        name: nginx
+        update_cache: yes
+        state: latest
+
+    - name: configure nginx udp port
+      template:
+             src: nginxport.conf
+             dest: /etc/nginx/sites-available/default
+
+    - name: configure udp for loadbalancing
+      template:
+             src: nginxudp.conf
+             dest: /etc/nginx/nginx.conf
+
+    - name: Restart Nginx
+      service:
+            name: nginx
+            state: restarted
+    - name: apt update
+      apt:
+        update_cache: true
+ 
+
+- name: Configure HAproxy for performance UI
+  hosts: HAproxy
+  become: yes
+  tasks:
+    - name: Copy uipassword template to target
+      template:
+        src: uipassword_template.j2  # Path to your template file
+        dest: uipassword
+  
+    - name: Read 'uipassword' file
+      shell: cat uipassword
+      register: password_file_content
+    
+    - name: Set username and password from 'uipassword' file
+      set_fact:
+        haproxy_username: "{{ password_file_content.stdout_lines[0].split(':')[0] }}"
+        haproxy_password: "{{ password_file_content.stdout_lines[0].split(':')[1] }}"
+  
+    - name: Check if password has changed
+      set_fact:
+        password_changed: "{{ haproxy_password != current_password }}"
+      vars:
+        current_password: "{{ lookup('file', 'uipassword', errors='ignore') }}"
+      changed_when: false
+      
+    - name: Edit HAproxy configuration
+      blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        block: |
+          listen stats
+            bind :8011 
+            mode http
+            stats enable
+            stats uri /stats
+            stats refresh 1s
+            stats auth {{ haproxy_username }}:{{ haproxy_password }}
+      when: password_changed or not current_password
+
+    - name: Restart haproxy
+      service:
+        name: haproxy
+        state: restarted
+      become: yes
+      when: password_changed or not current_password
+    
+    
