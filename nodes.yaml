@@ -17,12 +17,6 @@
       apt:
         update_cache: true
 
-    - name: Installing nginx
-      apt:
-        name: nginx
-        state: latest
-        update_cache: true
-
     - name: pip install
       apt:
         name: python3-pip
@@ -60,27 +54,7 @@
     - name: deploying Flask application 
       shell: gunicorn -w 2 -D -b 0.0.0.0:5000 application2:app
 
-    - name: install snmpd 
-      apt:
-        name: snmpd
-        state: latest
-        update_cache: true
-
-    - name: configure snmpd
-      template:
-             src: snmpd.conf
-             dest: /etc/snmp/snmpd.conf
-
-    - name: restarting snmpd
-      service:
-            name: snmpd
-            state: restarted
-
-    - name: apt update
-      apt:
-        update_cache: true
-- hosts: all
-  gather_facts: true
+   
 
 - hosts: HAproxy 
   become: true
@@ -129,28 +103,7 @@
       service:
             name: nginx
             state: restarted
-    - name: apt update
-      apt:
-        update_cache: true
- 
 
-- name: Configure HAproxy for performance UI
-  hosts: HAproxy
-  become: yes
-  tasks:
-    - name: Copy uipassword template to target
-      template:
-        src: uipassword_template.j2  # Path to your template file
-        dest: uipassword
-  
-    - name: Read 'uipassword' file
-      shell: cat uipassword
-      register: password_file_content
-    
-    - name: Set username and password from 'uipassword' file
-      set_fact:
-        haproxy_username: "{{ password_file_content.stdout_lines[0].split(':')[0] }}"
-        haproxy_password: "{{ password_file_content.stdout_lines[0].split(':')[1] }}"
   
     - name: Check if password has changed
       set_fact:
@@ -178,5 +131,3 @@
         state: restarted
       become: yes
       when: password_changed or not current_password
-    
-    
