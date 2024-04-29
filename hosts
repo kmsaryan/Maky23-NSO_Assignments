@@ -1,10 +1,24 @@
-[HAproxy]  
-HAproxy 
-[webservers]  
-devA  
-devB  
-devC  
- 
-[all:vars]  
-ansible_user=ubuntu  
-##REMOVED sshkey entry, handled by external SSH config file ## 
+[all:vars]
+ansible_user=ubuntu
+hostname ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[bastion]
+bastion ansible_host=10.0.1.21 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+bastion ansible_ssh_common_args='-o ProxyJump=ubuntu@bastion'
+
+[HAproxy]
+haproxy ansible_host=10.0.1.16 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[devA]
+devA ansible_host=10.0.1.13 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[devB]
+devB ansible_host=10.0.1.5 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[devC]
+devC ansible_host=10.0.1.6 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[webservers]
+devA
+devB
+devC

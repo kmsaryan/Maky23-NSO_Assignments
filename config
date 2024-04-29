@@ -3,7 +3,7 @@ StrictHostKeyChecking no
 
 
 Host bastion
-        HostName 10.0.1.21
+        HostName 185.52.156.33
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
         PasswordAuthentication yes
@@ -11,27 +11,27 @@ Host bastion
 
 
 Host HAproxy
-        HostName 10.0.1.16
+        HostName 185.52.156.197
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
 
 
 Host devA
-        HostName 10.0.1.13
+        HostName 10.0.1.11
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
         ProxyJump bastion
 
 
 Host devB
-        HostName 10.0.1.5
+        HostName 10.0.1.30
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
         ProxyJump bastion
 
 
 Host devC
-        HostName 10.0.1.6
+        HostName 10.0.1.24
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
         ProxyJump bastion

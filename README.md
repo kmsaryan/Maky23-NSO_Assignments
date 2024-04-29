@@ -28,7 +28,7 @@ the public ip address we use for connecting into bastion from our local host
 bastion ubuntu@xxxxx
 
 To login into bastion we use the follwing command from the directory where our ssh key is located in our local host (host from which we are using to configure )
-PS F:\User\> ssh -i ".\privatekey--xxxx.txt" ubuntu@xxx.Xx.xxx.xxx
+PS F:\User\> ssh -i ".\privatekey--xxxx.txt" ubuntu@
 
 from bastion we connect to remaining severs Dev A,B,C
 you need key.pem which we use to connect dev A B C
