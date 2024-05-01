@@ -3,7 +3,7 @@ StrictHostKeyChecking no
 
 
 Host bastionNSO
-        HostName 185.52.156.33
+        HostName 185.52.156.249
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
 
@@ -11,30 +11,22 @@ Host HAproxy
         HostName 185.52.156.197
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
-        UserKnownHostsFile /dev/null
-
-
 
 Host devA
-        HostName 10.0.1.6
+        HostName 10.0.1.29
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
-        UserKnownHostsFile /dev/null
         ProxyJump bastionNSO
-
 
 Host devB
-        HostName 10.0.1.12
+        HostName 10.0.1.7
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
-        UserKnownHostsFile /dev/null
         ProxyJump bastionNSO
-
 
 Host devC
-        HostName 10.0.1.11
+
+        HostName 10.0.1.22
         User ubuntu
         IdentityFile ~/.ssh/id_rsa
-        UserKnownHostsFile /dev/null
         ProxyJump bastionNSO
-
