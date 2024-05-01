@@ -1,32 +1,28 @@
-PasswordAuthentication no
-StrictHostKeyChecking no
-
-
 Host bastionNSO
-        HostName 185.52.156.249
-        User ubuntu
-        IdentityFile ~/.ssh/id_rsa
-
+	HostName 185.52.156.249
+	ForwardAgent yes
+	ControlMaster auto 
+	ControlPath ~/.ssh/ansible-%r@%h:%p
+	ControlPersist yes
+	
 Host HAproxy
-        HostName 185.52.156.197
-        User ubuntu
-        IdentityFile ~/.ssh/id_rsa
+	HostName 185.52.156.197
+	ProxyCommand ssh -W %h:%p bastionNSO
 
 Host devA
-        HostName 10.0.1.29
-        User ubuntu
-        IdentityFile ~/.ssh/id_rsa
-        ProxyJump bastionNSO
+	HostName 10.0.1.29
+	ProxyCommand ssh -W %h:%p bastionNSO
 
 Host devB
-        HostName 10.0.1.7
-        User ubuntu
-        IdentityFile ~/.ssh/id_rsa
-        ProxyJump bastionNSO
+	HostName 10.0.1.7
+	ProxyCommand ssh -W %h:%p bastionNSO
 
 Host devC
+	HostName 10.0.1.22
+	ProxyCommand ssh -W %h:%p bastionNSO
 
-        HostName 10.0.1.22
-        User ubuntu
-        IdentityFile ~/.ssh/id_rsa
-        ProxyJump bastionNSO
+Host *
+	user ubuntu
+	IdentityFile ~/.ssh/id_rsa
+	StrictHostKeyChecking no
+	PasswordAuthentication no
