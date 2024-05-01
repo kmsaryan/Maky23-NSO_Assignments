@@ -7,6 +7,8 @@ Host bastionNSO
 	
 Host HAproxy
 	HostName 185.52.156.197
+	ForwardAgent yes
+	ControlMaster auto 
 	ProxyCommand ssh -W %h:%p bastionNSO
 
 Host devA
