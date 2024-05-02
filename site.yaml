@@ -44,16 +44,26 @@
     - name: apt update
       apt:
         update_cache: yes
+
     - name: install HAproxy
       apt:
         name: haproxy
         state: latest
-    - name: configure HAproxy
+
+    - name: Get IP addresses of webservers
+      set_fact:
+        webservers_ips: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
+      run_once: true
+
+    - name: Configure HAproxy
       template:
         src: haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg
-      become: yes
-    - name: Restart haproxy
+      become: true
+      vars:
+        webservers_ips: "{{ webservers_ips }}"
+
+    - name: Restart HAproxy
       service:
         name: haproxy
         state: restarted

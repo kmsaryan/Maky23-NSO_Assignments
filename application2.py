@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import flask
 import time
 import socket
