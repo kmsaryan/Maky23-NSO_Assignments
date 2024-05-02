@@ -54,6 +54,25 @@
         webservers_ips: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
       run_once: true
 
+- name: configure HAproxy load balancer
+  hosts: HAproxy
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: apt update
+      apt:
+        update_cache: yes
+
+    - name: install HAproxy
+      apt:
+        name: haproxy
+        state: latest
+
+    - name: Get IP addresses of webservers
+      set_fact:
+        webservers_ips: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
+      run_once: true
+
     - name: Configure HAproxy
       template:
         src: haproxy.cfg.j2
