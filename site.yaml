@@ -35,7 +35,6 @@
         mode: "0755"
     - name: Running Flask application
       shell: gunicorn -w 2 -D -b 0.0.0.0:8080 application2:app
-
 - name: configure HAproxy load balancer
   hosts: HAproxy
   become: yes
