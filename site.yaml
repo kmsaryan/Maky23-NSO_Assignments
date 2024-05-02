@@ -1,7 +1,7 @@
 ---
 - hosts: all
   gather_facts: true
-  
+
 - hosts: webservers
   become: true
   become_method: sudo
@@ -35,7 +35,7 @@
         mode: "0755"
     - name: Running Flask application
       shell: gunicorn -w 2 -D -b 0.0.0.0:8080 application2:app
-      
+
 - name: configure HAproxy load balancer
   hosts: HAproxy
   become: yes
@@ -67,3 +67,28 @@
       service:
         name: haproxy
         state: restarted
+      ignore_errors: true
+
+    - name: Check HAproxy status
+      wait_for:
+        port: 80
+        delay: 10
+        timeout: 60
+      register: haproxy_reachable
+      until: haproxy_reachable is success
+
+    - name: Modify HAproxy config if backend nodes are unreachable
+      block:
+        - name: Update HAproxy configuration
+          template:
+            src: haproxy.cfg.j2
+            dest: /etc/haproxy/haproxy.cfg
+          become: true
+          vars:
+            webservers_ips: "{{ webservers_ips }}"
+
+        - name: Restart HAproxy
+          service:
+            name: haproxy
+            state: restarted
+      when: not haproxy_reachable is success
