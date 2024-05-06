@@ -52,3 +52,9 @@ change directory to .ssh
 you need to add your public key to allow access to this host you do so with the following
     echo -n "<insert your public key here>" >>  authorized_keys
 repeat the intial configuration for all Dev servers 
+you can check the connectivity between hosts by
+    ansible all -i hosts -m ping
+you can cehck the syntax of your file 
+    ansible-playbook --syntax-check nodes.yaml
+you can run your play book 
+ ansible-playbook -i hosts site.yaml
