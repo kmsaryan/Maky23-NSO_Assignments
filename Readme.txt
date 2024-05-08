@@ -40,7 +40,7 @@ gain root access using sudo su and install a text editor like vim
     apt install vim
 then create a file named "key.pem" for storing your private key just paste the privte key in the file and save it 
     vim key.pem
-change ownership of it user by using chmod 600 key.pem
+change ownership of it user by using sudo chmod 600 key.pem
 intial configuration for Dev servers
 login into Bastion
 change directory into .ssh  to where you have key.pemwhich you have created earlier (i have mine in .ssh)

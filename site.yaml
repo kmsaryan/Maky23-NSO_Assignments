@@ -1,73 +1,43 @@
 ---
 - hosts: all
   gather_facts: true
-
-- hosts: webservers
-  become: true
-  become_method: sudo
-  gather_facts: yes
   tasks:
-    - name: apt update
+    - name: apt update and install required packages
       apt:
-        update_cache: true
-    - name: install python3, pip3 venv
-      become: true
-      apt:
+        update_cache: yes
         name:
+          - haproxy
           - python3
           - python3-pip
           - python3-venv
-        update_cache: yes
-    - name: install flask
+          - gunicorn
+        state: latest
       become: true
+
+    - name: install flask
       pip:
-        executable: pip3
         name: flask
         state: latest
-    - name: Installing Gunicorn
-      apt:
-        name: gunicorn
+        executable: pip3
+      become: true
+
     - name: copy flask app to remote server
       copy:
         src: application2.py
         dest: /home/ubuntu/application2.py
         owner: ubuntu
         mode: "0755"
+      become: true
+
     - name: Running Flask application
       shell: gunicorn -w 2 -D -b 0.0.0.0:8080 application2:app
-- name: configure HAproxy load balancer
-  hosts: HAproxy
+      become: true
+      async: 30
+      poll: 0
+
+- hosts: HAproxy
   become: yes
-  become_method: sudo
   tasks:
-    - name: apt update
-      apt:
-        update_cache: yes
-
-    - name: install HAproxy
-      apt:
-        name: haproxy
-        state: latest
-
-    - name: Get IP addresses of webservers
-      set_fact:
-        webservers_ips: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
-      run_once: true
-
-- name: configure HAproxy load balancer
-  hosts: HAproxy
-  become: yes
-  become_method: sudo
-  tasks:
-    - name: apt update
-      apt:
-        update_cache: yes
-
-    - name: install HAproxy
-      apt:
-        name: haproxy
-        state: latest
-
     - name: Get IP addresses of webservers
       set_fact:
         webservers_ips: "{{ groups['webservers'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
@@ -81,32 +51,15 @@
       vars:
         webservers_ips: "{{ webservers_ips }}"
 
-    - name: Restart HAproxy
+    - name: Restart HAproxy and ensure it's running
       service:
         name: haproxy
         state: restarted
+      become: true
       ignore_errors: true
 
-    - name: Check HAproxy status
+    - name: Wait for HAproxy to start
       wait_for:
         port: 80
         delay: 10
         timeout: 60
-      register: haproxy_reachable
-      until: haproxy_reachable is success
-
-    - name: Modify HAproxy config if backend nodes are unreachable
-      block:
-        - name: Update HAproxy configuration
-          template:
-            src: haproxy.cfg.j2
-            dest: /etc/haproxy/haproxy.cfg
-          become: true
-          vars:
-            webservers_ips: "{{ webservers_ips }}"
-
-        - name: Restart HAproxy
-          service:
-            name: haproxy
-            state: restarted
-      when: not haproxy_reachable is success
